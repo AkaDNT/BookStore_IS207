@@ -17,9 +17,9 @@ class AuthController extends Controller
     {
         try {
             $data = $request->validate([
-                'username' => ['required','string','max:255', Rule::unique('users','user_name')],
-                'email'    => ['required','email','max:255', Rule::unique('users','email')],
-                'password' => ['required','string','min:6'],
+                'username' => ['required','string','min:2','max:20', Rule::unique('users','user_name')],
+                'email'    => ['required','email','max:50', Rule::unique('users','email')],
+                'password' => ['required','string','min:6','max:100'],
                 'role'     => ['sometimes'],
             ]);
 
