@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
@@ -22,3 +23,9 @@ Route::prefix('books')->group(function () {
 Route::post('/auth/signin',  [AuthController::class, 'login']);
     Route::get('/user/me',     [AuthController::class, 'me']);
     Route::post('/auth/logout',[AuthController::class, 'logout']);
+
+    Route::middleware('auth:api')->group(function () {
+    Route::post('/addresses', [AddressController::class, 'store']);
+    Route::patch('/addresses/{addressId}', [AddressController::class, 'update']);
+    Route::delete('/addresses/{addressId}', [AddressController::class, 'destroy']);
+});
