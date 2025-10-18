@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,4 +18,7 @@ Route::prefix('books')->group(function () {
     Route::get('/search', [BookController::class, 'search']);
     Route::get('/searchTitle', [BookController::class, 'searchTitle']);
 });
-
+    Route::post('/auth/signup', [AuthController::class, 'signup']);
+Route::post('/auth/signin',  [AuthController::class, 'login']);
+    Route::get('/user/me',     [AuthController::class, 'me']);
+    Route::post('/auth/logout',[AuthController::class, 'logout']);
