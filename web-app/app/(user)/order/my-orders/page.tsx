@@ -38,7 +38,7 @@ export default async function OrdersPage() {
 
               <div className="text-right">
                 <p className="font-semibold text-purple-700">
-                  ${order.totalAmount.toFixed(2)}
+                  ${Number(order.totalAmount).toFixed(2)}
                 </p>
                 <span
                   className={`px-2 py-1 font-bold rounded-full text-xs ${
@@ -61,10 +61,10 @@ export default async function OrdersPage() {
                 >
                   <div className="w-20 h-28 relative flex-shrink-0">
                     <Image
-                      src={`/assets/${item.book.title
+                      src={`/assets/${item.title
                         .toLowerCase()
                         .replace(/\s+/g, "-")}.jpg`}
-                      alt={item.book.title}
+                      alt={item.title}
                       fill
                       sizes="80px"
                       className="object-cover rounded-lg border"
@@ -72,16 +72,18 @@ export default async function OrdersPage() {
                   </div>
 
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">
-                      {item.book.title}
-                    </h3>
-                    <p className="text-sm text-gray-500">{item.book.author}</p>
+                    <h3 className="font-medium text-gray-900">{item.title}</h3>
+                    <p className="text-sm text-gray-500">{item.author}</p>
                     <div className="flex justify-between mt-2">
                       <p className="text-purple-700">
-                        ${item.orderedBookPrice.toFixed(2)} × {item.quantity}
+                        ${Number(item.orderedBookPrice).toFixed(2)} ×{" "}
+                        {item.quantity}
                       </p>
                       <p className="font-medium text-purple-700">
-                        ${(item.orderedBookPrice * item.quantity).toFixed(2)}
+                        $
+                        {(
+                          Number(item.orderedBookPrice) * Number(item.quantity)
+                        ).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -100,7 +102,7 @@ export default async function OrdersPage() {
               <p className="flex justify-between">
                 <span className="text-gray-500">Payment status:</span>
                 <span className="font-medium capitalize text-rose-700">
-                  {order.payment.pgStatus.toLowerCase()}
+                  {order.payment.pgStatus?.toLowerCase()}
                 </span>
               </p>
             </div>

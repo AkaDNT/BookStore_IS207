@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\Address;
 use Exception;
 
@@ -16,23 +17,28 @@ class AddressController extends Controller
     {
         try {
             $data = $request->validate([
-                'street'        => ['required','string','min:5'],
-                'building_name' => ['required','string','min:5'],
-                'city'          => ['required','string','min:4'],
-                'district'      => ['required','string','min:4'],
-                'ward'          => ['required','string','min:4'],
+                'street'       => ['required','string','min:5'],
+                'buildingName' => ['required','string','min:5'],
+                'city'         => ['required','string','min:4'],
+                'district'     => ['required','string','min:4'],
+                'ward'         => ['required','string','min:4'],
             ]);
 
             $user = auth('api')->user();
 
-            $address = DB::transaction(function () use ($data, $user) {
-                $address = new Address($data);
+            $payload = [];
+            foreach ($data as $k => $v) {
+                $payload[Str::snake($k)] = $v;
+            }
+
+            $address = DB::transaction(function () use ($payload, $user) {
+                $address = new Address($payload);
                 $address->user_id = $user->id;
                 $address->save();
                 return $address->fresh();
             });
 
-            return response()->json($address, 201);
+            return response()->json($this->addressResponse($address), 201);
         } catch (ValidationException $e) {
             return $this->errorResponse(422, 'Validation failed', $e->errors());
         } catch (QueryException $e) {
@@ -46,11 +52,11 @@ class AddressController extends Controller
     {
         try {
             $data = $request->validate([
-                'street'        => ['sometimes','string','min:5'],
-                'building_name' => ['sometimes','string','min:5'],
-                'city'          => ['sometimes','string','min:4'],
-                'district'      => ['sometimes','string','min:4'],
-                'ward'          => ['sometimes','string','min:4'],
+                'street'       => ['sometimes','string','min:5'],
+                'buildingName' => ['sometimes','string','min:5'],
+                'city'         => ['sometimes','string','min:4'],
+                'district'     => ['sometimes','string','min:4'],
+                'ward'         => ['sometimes','string','min:4'],
             ]);
 
             $user = auth('api')->user();
@@ -59,9 +65,14 @@ class AddressController extends Controller
                 ->where('user_id', $user->id)
                 ->firstOrFail();
 
-            $address->fill($data)->save();
+            $payload = [];
+            foreach ($data as $k => $v) {
+                $payload[Str::snake($k)] = $v;
+            }
 
-            return response()->json($address);
+            $address->fill($payload)->save();
+
+            return response()->json($this->addressResponse($address));
         } catch (ValidationException $e) {
             return $this->errorResponse(422, 'Validation failed', $e->errors());
         } catch (ModelNotFoundException $e) {
@@ -92,6 +103,18 @@ class AddressController extends Controller
         } catch (Exception $e) {
             return $this->errorResponse(500, 'Server error', ['server' => [$e->getMessage()]]);
         }
+    }
+
+    private function addressResponse(Address $a): array
+    {
+        return [
+            'id'           => $a->id,
+            'street'       => $a->street,
+            'buildingName' => $a->building_name,
+            'city'         => $a->city,
+            'district'     => $a->district,
+            'ward'         => $a->ward,
+        ];
     }
 
     private function errorResponse(int $status, string $message, array $errors = [])

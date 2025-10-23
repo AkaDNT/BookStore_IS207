@@ -11,6 +11,7 @@ const LineChart = dynamic(
 );
 export default function RevenueByDateChart({ orders }: { orders: Order[] }) {
   const revenueMap: Record<string, number> = {};
+  console.log(orders);
 
   orders.forEach((order) => {
     const dateKey = new Date(order.orderDate).toISOString().slice(0, 10);

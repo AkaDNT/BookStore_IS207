@@ -11,10 +11,10 @@ interface Book {
 }
 
 interface ApiResponse {
-  content: Book[];
-  totalPages: number;
-  pageable: {
-    pageNumber: number;
+  data: Book[];
+  meta: {
+    current_page: number;
+    last_page: number;
   };
 }
 
@@ -24,12 +24,12 @@ async function fetchBooks(searchParams: {
   const queryParams = new URLSearchParams();
 
   if (searchParams.searchTerm) {
-    queryParams.set("searchTerm", searchParams.searchTerm.toString());
+    queryParams.set("searchTerm", String(searchParams.searchTerm));
   }
 
   Object.entries(searchParams).forEach(([key, value]) => {
     if (value && key !== "searchTerm") {
-      queryParams.set(key, value.toString());
+      queryParams.set(key, String(value));
     }
   });
 
@@ -44,16 +44,16 @@ export default async function SearchPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const data = await fetchBooks(searchParams);
-  const currentPage = data.pageable.pageNumber;
-  const totalPages = data.totalPages;
-  console.log(data);
+
+  const currentPage = Number(searchParams.page ?? 0);
+  const totalPages = Number(data.meta.last_page);
 
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams();
     Object.entries(searchParams).forEach(([key, value]) => {
-      if (key !== "page" && value) params.set(key, value.toString());
+      if (key !== "page" && value) params.set(key, String(value));
     });
-    params.set("page", page.toString());
+    params.set("page", String(page));
     return `/search?${params.toString()}`;
   };
 
@@ -61,9 +61,8 @@ export default async function SearchPage({
     <div className="min-h-screen">
       <SearchControls />
 
-      {/* Book Grid */}
       <div className="grid grid-cols-4 gap-6 p-6">
-        {data.content.map((book) => (
+        {data.data.map((book) => (
           <div
             key={book.id}
             className="border p-4 rounded-md shadow hover:shadow-lg transition"
@@ -79,7 +78,7 @@ export default async function SearchPage({
             <p className="text-gray-600 mb-2 truncate">{book.author}</p>
             <div className="grid grid-cols-2 relative">
               <p className="text-black font-semibold mb-4 text-2xl">
-                ${book.price.toFixed(2)}
+                ${Number(book.price).toFixed(2)}
               </p>
               <button className="absolute right-4 top-0 text-gray-600 hover:text-red-500">
                 <Heart size={24} />
@@ -92,7 +91,6 @@ export default async function SearchPage({
         ))}
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-center gap-2 pb-6">
         {currentPage > 0 && (
           <Link
@@ -103,19 +101,23 @@ export default async function SearchPage({
           </Link>
         )}
 
-        {Array.from({ length: totalPages }, (_, i) => (
-          <Link
-            key={i}
-            href={createPageUrl(i)}
-            className={`px-4 py-2 rounded ${
-              currentPage === i
-                ? "bg-purple-600 text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-          >
-            {i + 1}
-          </Link>
-        ))}
+        {Array.from({ length: totalPages }, (_, i) => {
+          const pageIndex = i;
+          const isActive = currentPage === pageIndex;
+          return (
+            <Link
+              key={pageIndex}
+              href={createPageUrl(pageIndex)}
+              className={`px-4 py-2 rounded ${
+                isActive
+                  ? "bg-purple-600 text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              {pageIndex + 1}
+            </Link>
+          );
+        })}
 
         {currentPage < totalPages - 1 && (
           <Link

@@ -13,7 +13,7 @@ export default function TopProductsChart({ orders }: { orders: Order[] }) {
 
   orders.forEach((order) => {
     order.orderItems.forEach((item) => {
-      const title = item.book.title;
+      const title = item.title;
       productMap[title] = (productMap[title] || 0) + item.quantity;
     });
   });

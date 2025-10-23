@@ -42,7 +42,7 @@ export default function BookTable({ books }: Props) {
           <td className="px-4 py-3 text-sm text-gray-700">{b.author}</td>
           <td className="px-4 py-3 text-sm text-gray-700">{b.category}</td>
           <td className="px-4 py-3 text-sm text-gray-700">
-            ${b.price.toFixed(2)}
+            ${Number(b.price).toFixed(2)}
           </td>
           <td className="px-4 py-3 text-sm text-gray-700">
             {new Date(b.publicationDate).toLocaleDateString()}

@@ -42,7 +42,7 @@ export default async function MyCartPage() {
                   {book.description}
                 </p>
                 <p className="mt-3 text-base font-semibold text-rose-600">
-                  ${book.price.toFixed(2)}
+                  ${Number(book.price).toFixed(2)}
                 </p>
                 <p className="text-sm">Quantity: {book.quantity}</p>
                 <button className="mt-2 text-sm text-red-500 hover:underline">
@@ -54,7 +54,7 @@ export default async function MyCartPage() {
 
           <div className="border-t pt-6 text-right">
             <p className="text-lg font-bold">
-              Total: ${data.totalPrice.toFixed(2)}
+              Total: ${Number(data.totalPrice).toFixed(2)}
             </p>
             <Link
               href="/order"

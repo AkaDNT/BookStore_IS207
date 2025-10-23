@@ -10,6 +10,13 @@ export const getUsersCart = async (): Promise<CartResponse> => {
   return await fetchWrapper.get("/carts/users/cart");
 };
 
+export const addOrDeleteItem = async (
+  id: string,
+  action: string
+): Promise<CartResponse> => {
+  return await fetchWrapper.patch(`/carts/book/${id}/quantity/${action}`, null);
+};
+
 export const addToCart = async (
   id: string,
   quantity: number
