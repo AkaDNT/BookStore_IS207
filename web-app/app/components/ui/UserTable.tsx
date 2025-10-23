@@ -36,7 +36,7 @@ export default function UserTable({
               </td>
               <td className="px-4 py-3 text-sm text-gray-700">{u.email}</td>
               <td className="px-4 py-3 text-sm text-gray-700">
-                {u.roles.map((r) => r.roleName.replace("ROLE_", "")).join(", ")}
+                {u.roles.map((r) => r).join(", ")}
               </td>
               <td className="px-4 py-3 text-sm flex items-center gap-3">
                 <Link

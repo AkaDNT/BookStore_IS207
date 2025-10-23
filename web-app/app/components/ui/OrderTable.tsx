@@ -44,12 +44,12 @@ export default function OrderTable({ orders }: { orders: Order[] }) {
 
               <td className="px-4 py-3 text-sm text-gray-700">
                 {order.orderItems
-                  .map((item) => `${item.book.title} x${item.quantity}`)
+                  .map((item) => `${item.title} x${item.quantity}`)
                   .join(", ")}
               </td>
 
               <td className="px-4 py-3 text-sm text-gray-700">
-                ${order.totalAmount.toFixed(2)}
+                ${Number(order.totalAmount).toFixed(2)}
               </td>
 
               <td className="px-4 py-3 text-sm text-gray-700">
