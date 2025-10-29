@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CurrentUser } from "@/app/actions/getCurrentUser";
 import { User } from "lucide-react";
+import { CurrentUser } from "@/app/(user)/actions/getCurrentUser";
 
 export default function AccountDropdown({
   user,

@@ -18,22 +18,31 @@ interface ApiResponse {
   };
 }
 
-async function fetchBooks(searchParams: {
-  [key: string]: unknown;
-}): Promise<ApiResponse> {
-  const queryParams = new URLSearchParams();
+type SearchParams = Record<string, string | string[] | undefined>;
 
-  if (searchParams.searchTerm) {
-    queryParams.set("searchTerm", String(searchParams.searchTerm));
-  }
-
-  Object.entries(searchParams).forEach(([key, value]) => {
-    if (value && key !== "searchTerm") {
-      queryParams.set(key, String(value));
+function toURLSearchParams(obj: SearchParams) {
+  const qp = new URLSearchParams();
+  for (const [key, value] of Object.entries(obj)) {
+    if (!value) continue;
+    if (Array.isArray(value)) {
+      value.forEach((v) => qp.append(key, String(v)));
+    } else {
+      qp.set(key, String(value));
     }
-  });
+  }
+  return qp;
+}
 
-  const res = await fetch(`${process.env.API_URL}/books/search?${queryParams}`);
+async function fetchBooks(searchParams: SearchParams): Promise<ApiResponse> {
+  const queryParams = toURLSearchParams(searchParams);
+  const res = await fetch(
+    `${process.env.API_URL}/books/search?${queryParams}`,
+    {
+      // tùy nhu cầu:
+      // cache: "no-store",
+      // next: { revalidate: 60 },
+    }
+  );
   if (!res.ok) throw new Error("Failed to fetch books");
   return res.json();
 }
@@ -41,18 +50,24 @@ async function fetchBooks(searchParams: {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<SearchParams>; // 👈 Next 15: Promise
 }) {
-  const data = await fetchBooks(searchParams);
+  const sp = await searchParams; // 👈 phải await
+  const data = await fetchBooks(sp);
 
-  const currentPage = Number(searchParams.page ?? 0);
+  // Lấy page hiện tại từ sp.page (có thể là string | string[] | undefined)
+  const pageParam = Array.isArray(sp.page) ? sp.page[0] : sp.page;
+  const currentPage = Number(pageParam ?? 0);
   const totalPages = Number(data.meta.last_page);
 
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams();
-    Object.entries(searchParams).forEach(([key, value]) => {
-      if (key !== "page" && value) params.set(key, String(value));
-    });
+    for (const [key, value] of Object.entries(sp)) {
+      if (key === "page" || value == null) continue;
+      if (Array.isArray(value))
+        value.forEach((v) => params.append(key, String(v)));
+      else params.set(key, String(value));
+    }
     params.set("page", String(page));
     return `/search?${params.toString()}`;
   };

@@ -4,25 +4,27 @@ import { notFound } from "next/navigation";
 import { Heart } from "lucide-react";
 import AddToCartSection from "@/app/components/ui/AddToCartSection";
 
-type BookDetailProps = {
-  params: { id: string };
-};
+type Params = Promise<{ id: string }>;
+// type BookDetailProps = { params: Params }; // 👈 params là Promise
 
-export async function generateMetadata(
-  props: BookDetailProps
-): Promise<Metadata> {
-  const { params } = await props;
-  const res = await fetch(`${process.env.API_URL}/books/book?Id=${params.id}`);
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const { id } = await params; // 👈 await params
+  const res = await fetch(`${process.env.API_URL}/books/book?Id=${id}`);
   const book = await res.json();
+
   return {
     title: book.title,
     description: book.description,
   };
 }
 
-export default async function BookDetailPage(props: BookDetailProps) {
-  const { params } = await props;
-  const res = await fetch(`${process.env.API_URL}/books/book?Id=${params.id}`, {
+export default async function BookDetailPage({ params }: { params: Params }) {
+  const { id } = await params; // 👈 await params
+  const res = await fetch(`${process.env.API_URL}/books/book?Id=${id}`, {
     cache: "no-store",
   });
 
@@ -31,7 +33,7 @@ export default async function BookDetailPage(props: BookDetailProps) {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Hình ảnh */}
         <div className="relative w-full h-[770px] rounded-lg overflow-hidden shadow-lg">
           <Image
@@ -50,13 +52,13 @@ export default async function BookDetailPage(props: BookDetailProps) {
         <div className="space-y-6">
           <h1 className="text-4xl font-bold text-gray-900">{book.title}</h1>
           <p className="text-lg text-gray-700 italic">by {book.author}</p>
+
           <div className="grid grid-cols-2 relative">
-            {/* Giá tiền */}
             <p className="text-black font-semibold mb-4 text-2xl">
               {book.price + "$"}
             </p>
             <button className="absolute right-4 border-purple-600 cursor-pointer">
-              <Heart></Heart>
+              <Heart />
             </button>
           </div>
 
@@ -89,7 +91,7 @@ export default async function BookDetailPage(props: BookDetailProps) {
             </ul>
           </div>
 
-          <AddToCartSection bookId={book.id}></AddToCartSection>
+          <AddToCartSection bookId={book.id} />
         </div>
       </div>
     </div>

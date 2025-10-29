@@ -3,15 +3,16 @@ import { notFound } from "next/navigation";
 import { getBookById } from "@/app/(user)/actions/bookAction";
 import BookForm from "../../BookForm";
 
-export default async function UpdateBook({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const id = Number(params.id);
-  const book = await getBookById(id);
-  console.log(book);
+type Params = Promise<{ id: string }>;
 
+export default async function UpdateBook(
+  { params }: { params: Params } // 👈 params là Promise
+) {
+  const { id } = await params; // 👈 cần await
+  const bookId = Number(id);
+  if (Number.isNaN(bookId)) return notFound();
+
+  const book = await getBookById(bookId);
   if (!book) return notFound();
 
   return <BookForm book={book} />;

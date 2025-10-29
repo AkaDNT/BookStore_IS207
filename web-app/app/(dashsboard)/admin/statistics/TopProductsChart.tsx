@@ -5,6 +5,7 @@ type Order = {
   orderItems: {
     book: { title: string };
     quantity: number;
+    title: string;
   }[];
 };
 
