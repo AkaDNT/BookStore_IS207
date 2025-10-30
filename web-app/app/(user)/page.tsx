@@ -8,6 +8,7 @@ export default async function Home() {
     const text = await res.text().catch(() => "");
     throw new Error(`Fetch failed ${res.status}: ${text}`);
   }
+  console.log(`${process.env.API_URL}`);
   const books = await res.json();
   const sortedBooks = [...books.data].sort((a, b) => {
     const dateA = a.publicationDate ? new Date(a.publicationDate).getTime() : 0;
