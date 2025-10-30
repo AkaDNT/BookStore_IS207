@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import BookImage from "../ui/BookImage";
 import Link from "next/link";
@@ -69,9 +69,6 @@ export default function ListBooks({ books, title }: Props) {
                 <p className="text-black font-semibold mb-4 text-2xl">
                   {book.price + "$"}
                 </p>
-                <button className="absolute right-4 border-purple-600 cursor-pointer">
-                  <Heart></Heart>
-                </button>
               </div>
               {/* Nút Add to cart */}
               <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 w-full h-12 cursor-pointer">

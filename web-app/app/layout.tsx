@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   title: "Bookstore",
@@ -16,6 +17,7 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
         <Toaster></Toaster>
+        <NextTopLoader></NextTopLoader>
         {children}
       </body>
     </html>

@@ -29,7 +29,8 @@ export default async function BookDetailPage({ params }: { params: Params }) {
   });
 
   if (!res.ok) return notFound();
-  const book = await res.json();
+  const data = await res.json();
+  const book = data.data;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
