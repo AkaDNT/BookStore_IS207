@@ -49,7 +49,7 @@ export default function AddToCartSection({ bookId }: Props) {
 
       {/* Nút Add to Cart */}
       <button
-        className="w-full bg-purple-600 text-white py-3 text-lg font-medium rounded-xl shadow hover:bg-purple-700 transition"
+        className="w-full bg-purple-600 text-white py-3 text-lg font-medium rounded-xl shadow hover:bg-purple-700 transition cursor-pointer"
         onClick={handleAddToCart}
       >
         Add to Cart

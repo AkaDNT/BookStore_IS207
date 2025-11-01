@@ -10,8 +10,11 @@
     "postinstall": "flowbite-react patch"
   },
   "dependencies": {
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.0",
     "date-fns": "^4.1.0",
     "flowbite-react": "^0.11.8",
+    "framer-motion": "^12.23.24",
     "lucide-react": "^0.483.0",
     "next": "15.2.4",
     "nextjs-toploader": "^3.9.17",

@@ -8,7 +8,6 @@ const Slider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [fade, setFade] = useState(false);
 
-  // Mảng chứa dữ liệu cho 3 slide, bạn có thể tự điều chỉnh nội dung sau
   const slides = [
     {
       id: 1,
@@ -16,27 +15,27 @@ const Slider = () => {
       title: "Eric‑Emmanuel Schmitt",
       description:
         "Awarded more than 20 literary prizes and distinctions, Eric‑Emmanuel Schmitt’s books have been translated into over 40 languages.",
-      image: "/assets/book-cover.jpg",
+      image: "https://m.media-amazon.com/images/I/71nMgMZJDaL._SY425_.jpg",
       buttonText: "View his books",
       link: "/books",
     },
     {
       id: 2,
-      author: "Placeholder Author 2",
-      title: "Placeholder Title 2",
+      author: "Author of September",
+      title: "Michael Connelly",
       description:
-        "This is the content for slide 2. Adjust the content as needed.",
-      image: "/assets/book-cover.jpg",
+        "Michael Connelly is the bestselling author of more than forty novels and one work of nonfiction. With over eighty-nine million copies of his books sold worldwide and translated into forty-five foreign languages, he is one of the most successful writers working today. A former newspaper reporter who worked the crime beat at the Los Angeles Times and the Fort Lauderdale Sun-Sentinel, Connelly has won numerous awards for his journalism and his fiction. His very first novel, The Black Echo, won the prestigious Mystery Writers of America Edgar Award for Best First Novel in 1992. In 2002, Clint Eastwood directed and starred in the movie adaptation of Connelly's 1998 novel, Blood Work",
+      image: "https://m.media-amazon.com/images/I/81CWXchKvRL._SY466_.jpg",
       buttonText: "Learn More",
       link: "/page2",
     },
     {
       id: 3,
-      author: "Placeholder Author 3",
-      title: "Placeholder Title 3",
+      author: "Author of October",
+      title: "Reese Witherspoon",
       description:
-        "This is the content for slide 3. Adjust the content as needed.",
-      image: "/assets/book-cover.jpg",
+        "Reese Witherspoon is an award-winning actress, producer, founder and New York Times bestselling author. She won an Academy Award® for her portrayal of June Carter Cash in Walk the Line and was later nominated in that same category for Wild in 2014, which she also produced. Witherspoon also starred in beloved films Sweet Home Alabama, Legally Blonde, and Election, as well as the award-winning television series Big Little Lies, Little Fires Everywhere, and The Morning Show. Her other film credits include Disney’s A Wrinkle in Time, Universal Pictures’ animated musical comedy Sing and Sing 2",
+      image: "https://m.media-amazon.com/images/I/71IujKyIE8L._SY466_.jpg",
       buttonText: "Discover",
       link: "/page3",
     },
@@ -96,13 +95,15 @@ const Slider = () => {
 
         {/* Right: Image */}
         <div className="w-full lg:w-1/2 pl-8 flex justify-center items-center">
-          <Image
-            src={slides[currentSlide].image}
-            alt="Book Cover"
-            width={400}
-            height={500}
-            className="rounded-lg shadow-xl object-cover"
-          />
+          <div className="relative w-[300px] h-[380px] lg:w-[400px] lg:h-[500px] bg-transparent">
+            <Image
+              src={slides[currentSlide].image}
+              alt="Book Cover"
+              fill
+              className="object-contain object-center rounded-lg shadow-xl"
+              sizes="(min-width:1024px) 400px, 60vw"
+            />
+          </div>
         </div>
       </div>
 
