@@ -30,6 +30,7 @@ class BookResource extends JsonResource
             'dimension'        => (string) $this->dimension,
             'quantity'         => (int) $this->quantity,
             'discount'         => $this->whenNotNull($this->discount, fn () => (float) $this->discount),
+            'imageUrl'        =>  (string)$this->image_url
         ];
     }
 }

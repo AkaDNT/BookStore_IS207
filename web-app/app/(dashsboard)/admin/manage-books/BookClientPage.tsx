@@ -25,7 +25,7 @@ export default function BookClientPage({
         setError(res.error.message);
         setBooks([]);
       } else {
-        setBooks(res);
+        setBooks(res.data);
       }
     } catch (err) {
       setError("Something went wrong: " + String(err));

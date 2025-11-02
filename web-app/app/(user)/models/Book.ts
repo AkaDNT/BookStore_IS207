@@ -13,4 +13,5 @@ export interface Book {
   dimension: string;
   quantity: number;
   discount: number;
+  imageUrl: string;
 }

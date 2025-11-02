@@ -12,7 +12,8 @@ export default async function UpdateBook(
   const bookId = Number(id);
   if (Number.isNaN(bookId)) return notFound();
 
-  const book = await getBookById(bookId);
+  const res = await getBookById(bookId);
+  const book = res.data;
   if (!book) return notFound();
 
   return <BookForm book={book} />;

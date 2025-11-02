@@ -59,7 +59,10 @@ export default function ListBooks({ books, title }: Props) {
             >
               <div className="relative h-140 mb-4">
                 <Link href={`/books/${book.id}`}>
-                  <BookImage title={`${book.title}`} />
+                  <BookImage
+                    title={`${book.title}`}
+                    imageUrl={`${book.imageUrl}`}
+                  />
                 </Link>
               </div>
               <h3 className="text-lg font-semibold mb-1">{book.title}</h3>

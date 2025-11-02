@@ -44,6 +44,7 @@ class Book extends Model
         'dimension',
         'quantity',
         'discount',
+        'image_url'
     ];
 
     protected $casts = [

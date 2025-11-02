@@ -45,7 +45,7 @@ class CartController extends Controller
                 $item->book_price = $book->price;
                 $item->save();
 
-                $cart->total_price = $cart->total_price + ($book->price * (1 - $book->discount) * $quantity);
+                $cart->total_price = $cart->total_price + ($book->price * (1 - $book->discount/100) * $quantity);
                 $cart->save();
 
                 return $this->cartResponse($cart->fresh('cartItems.book'));
@@ -99,7 +99,7 @@ class CartController extends Controller
                     return $this->errorResponse(400, 'Book is not available', ['stock' => ['Book is not available.']]);
                 }
 
-                $cart->total_price = $cart->total_price - ($item->book_price * (1 - $item->discount) * $item->quantity);
+                $cart->total_price = $cart->total_price - ($item->book_price * (1 - ($item->discount)/100) * $item->quantity);
 
                 $newQty = $item->quantity + $delta;
                 if ($newQty < 0) {
@@ -118,7 +118,7 @@ class CartController extends Controller
                     $item->save();
                 }
 
-                $cart->total_price = $cart->total_price + ($book->price * (1 - $book->discount) * ($newQty));
+                $cart->total_price = $cart->total_price + ($book->price * (1 - $book->discount/100) * ($newQty));
                 $cart->save();
 
                 return response()->json($this->cartResponse($cart->fresh('cartItems.book')));
@@ -148,7 +148,7 @@ class CartController extends Controller
                 if (!$item) {
                     return $this->errorResponse(404, 'Cart item not found', ['cart' => ['Cart item not found.']]);
                 }
-                $cart->total_price = $cart->total_price - ($item->book_price * (1 - $item->discount) * $item->quantity);
+                $cart->total_price = $cart->total_price - ($item->book_price * (1 - ($item->discount)/100) * $item->quantity);
                 $item->delete();
                 $cart->save();
 

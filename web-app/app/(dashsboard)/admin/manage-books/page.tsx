@@ -5,7 +5,8 @@ import BookClientPage from "./BookClientPage";
 import Link from "next/link";
 
 export default async function BooksPage() {
-  const books = await getAllBooks();
+  const res = await getAllBooks();
+  const books = res.data;
 
   return (
     <section className="p-6">

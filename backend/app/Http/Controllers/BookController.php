@@ -39,6 +39,7 @@ class BookController extends Controller
             'dimension'        => ['nullable','string','max:50'],
             'quantity'         => ['sometimes','integer','min:0'],
             'discount'         => ['sometimes','numeric','min:0'],
+            'imageUrl'         => ['sometimes','nullable','string','url',],
         ]);
 
         if ($validated->fails()) {
@@ -105,6 +106,7 @@ class BookController extends Controller
             'dimension'       => ['sometimes','nullable','string','max:50'],
             'quantity'        => ['sometimes','integer','min:0'],
             'discount'        => ['sometimes','numeric','min:0'],
+            'imageUrl'         => ['sometimes','nullable','string','url',],
         ]);
 
         if ($validator->fails()) {
@@ -129,7 +131,7 @@ class BookController extends Controller
         $map = [
             'title','author','description','category','price','publisher',
             'publicationDate','language','readingAge','pages','dimension',
-            'quantity','discount'
+            'quantity','discount','imageUrl'
         ];
 
         foreach ($map as $f) {
