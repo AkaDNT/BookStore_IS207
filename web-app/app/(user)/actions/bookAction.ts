@@ -1,9 +1,9 @@
 "use server";
 import { fetchWrapper } from "@/lib/fetchWrapper";
-import { Book } from "../models/Book";
+import { GetBookResponse, GetBooksResponse } from "../models/Book";
 import { FieldValues } from "react-hook-form";
 
-export const getAllBooks = async (): Promise<Book[]> => {
+export const getAllBooks = async (): Promise<GetBooksResponse> => {
   return await fetchWrapper.get("/books");
 };
 
@@ -15,7 +15,7 @@ export const updateBook = async (data: FieldValues, id: number) => {
   return await fetchWrapper.patch(`/books?id=${id}`, data);
 };
 
-export const getBookById = async (id: number): Promise<Book> => {
+export const getBookById = async (id: number): Promise<GetBookResponse> => {
   return await fetchWrapper.get(`/books/book?Id=${id}`);
 };
 

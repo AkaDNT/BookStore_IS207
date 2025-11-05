@@ -1,11 +1,13 @@
 import { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import { Heart } from "lucide-react";
 import AddToCartSection from "@/app/components/ui/AddToCartSection";
+import BookImage from "@/app/components/ui/BookImage";
 
 type Params = Promise<{ id: string }>;
-// type BookDetailProps = { params: Params }; // 👈 params là Promise
+
+// Formatter tiền tệ (đổi currency/locale nếu cần)
+const fmtMoney = (v: number, currency = "USD", locale = "en-US") =>
+  new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);
 
 export async function generateMetadata({
   params,
@@ -32,20 +34,22 @@ export default async function BookDetailPage({ params }: { params: Params }) {
   const data = await res.json();
   const book = data.data;
 
+  // Tính giá & giảm giá
+  const price = Number(book?.price) || 0; // giá gốc
+  const discount = Math.max(Number(book?.discount) || 0, 0);
+  const hasDiscount = discount > 0;
+  const finalPrice = hasDiscount ? price * (1 - discount / 100) : price;
+  const saved = Math.max(price - finalPrice, 0);
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Hình ảnh */}
-        <div className="relative w-full h-[770px] rounded-lg overflow-hidden shadow-lg">
-          <Image
-            src={
-              "/assets/" +
-              book.title.toLowerCase().replace(/\s+/g, "-") +
-              ".jpg"
-            }
-            alt={book.title}
-            fill
-            className="object-cover object-center"
+        <div className="relative mb-3 sm:mb-4 aspect-[3/4]">
+          <BookImage
+            title={book.title}
+            imageUrl={book.imageUrl}
+            fit="contain"
           />
         </div>
 
@@ -55,12 +59,44 @@ export default async function BookDetailPage({ params }: { params: Params }) {
           <p className="text-lg text-gray-700 italic">by {book.author}</p>
 
           <div className="grid grid-cols-2 relative">
-            <p className="text-black font-semibold mb-4 text-2xl">
-              {book.price + "$"}
-            </p>
-            <button className="absolute right-4 border-purple-600 cursor-pointer">
-              <Heart />
-            </button>
+            {/* Cụm giá theo chuẩn TMĐT */}
+            <div className="col-span-2">
+              <div className="flex items-center flex-wrap gap-3 mb-1">
+                {/* Giá sau giảm (đen, nổi bật) */}
+                <span className="text-4xl font-bold text-gray-900">
+                  {fmtMoney(finalPrice)}
+                </span>
+
+                {/* Giá gốc gạch ngang (xám) */}
+                {hasDiscount && (
+                  <span className="text-4xl font-semibold text-gray-500 line-through">
+                    {fmtMoney(price)}
+                  </span>
+                )}
+
+                {/* Chip % OFF */}
+                {hasDiscount && (
+                  <span
+                    className="
+                      inline-flex items-center rounded-md
+                      bg-rose-50 text-rose-600
+                      px-3 py-1 text-4xl font-bold
+                    "
+                    aria-label={`-${discount}%`}
+                    title={`-${discount}%`}
+                  >
+                    -{Math.round(discount)}%
+                  </span>
+                )}
+              </div>
+
+              {/* Tiết kiệm … */}
+              {hasDiscount && (
+                <div className="text-sm text-gray-600">
+                  Save {fmtMoney(saved)}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="text-gray-800 leading-relaxed border-t pt-6">

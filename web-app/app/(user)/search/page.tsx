@@ -2,13 +2,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import SearchControls from "./SearchControls";
 import BookImage from "@/app/components/ui/BookImage";
-
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  price: number;
-}
+import { Book } from "../models/Book";
 
 interface ApiResponse {
   data: Book[];
@@ -84,7 +78,7 @@ export default async function SearchPage({
           >
             <div className="relative h-150 mb-4">
               <Link href={`/books/${book.id}`}>
-                <BookImage title={book.title} />
+                <BookImage title={book.title} imageUrl={book.imageUrl} />
               </Link>
             </div>
             <h3 className="text-lg font-semibold mb-1 truncate">

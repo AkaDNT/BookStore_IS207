@@ -15,3 +15,11 @@ export interface Book {
   discount: number;
   imageUrl: string;
 }
+
+export interface GetBooksResponse {
+  data: Book[];
+}
+
+export interface GetBookResponse {
+  data: Book;
+}

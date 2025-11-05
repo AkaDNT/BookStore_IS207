@@ -193,24 +193,23 @@ class CartController extends Controller
     }
 
     private function cartResponse(Cart $cart): array
-    {
-        $books = [];
-        foreach ($cart->cartItems as $ci) {
-            $b = $ci->book;
-            $books[] = [
-                'id' => $b->id,
-                'title' => $b->title,
-                'price' => $b->price,
-                'discount' => $b->discount,
-                'quantity' => $ci->quantity,
-            ];
-        }
-        return [
-            'cartId' => $cart->id,
-            'totalPrice' => $cart->total_price,
-            'books' => $books,
+{
+    $books = [];
+    foreach ($cart->cartItems as $ci) {
+        $books[] = [
+            'id'       => $ci->book->id,
+            'title'    => $ci->book->title,
+            'price'    => (float) $ci->book_price, 
+            'discount' => (float) $ci->discount,   
+            'quantity' => (int) $ci->quantity,
         ];
     }
+    return [
+        'cartId'     => $cart->id,
+        'totalPrice' => round((float) $cart->total_price, 2),
+        'books'      => $books,
+    ];
+}
 
     private function errorResponse(int $status, string $message, array $errors = [])
     {

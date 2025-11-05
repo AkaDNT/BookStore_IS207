@@ -37,13 +37,13 @@ export default async function OrdersPage() {
               </div>
 
               <div className="text-right">
-                <p className="font-semibold text-purple-700">
+                <p className="font-semibold text-red-700">
                   ${Number(order.totalAmount).toFixed(2)}
                 </p>
                 <span
                   className={`px-2 py-1 font-bold rounded-full text-xs ${
                     order.orderStatus.toLowerCase().includes("accepted")
-                      ? "bg-purple-100 text-purple-600"
+                      ? "bg-purple-100 text-green-600"
                       : "bg-rose-100 text-rose-600"
                   }`}
                 >
@@ -75,14 +75,21 @@ export default async function OrdersPage() {
                     <h3 className="font-medium text-gray-900">{item.title}</h3>
                     <p className="text-sm text-gray-500">{item.author}</p>
                     <div className="flex justify-between mt-2">
-                      <p className="text-purple-700">
-                        ${Number(item.orderedBookPrice).toFixed(2)} ×{" "}
-                        {item.quantity}
-                      </p>
+                      <div className="flex flex-col gap-3">
+                        <p className="text-purple-700">
+                          ${Number(item.orderedBookPrice).toFixed(2)} ×{" "}
+                          {item.quantity}
+                        </p>
+                        <p className="text-rose-600">
+                          Discount: {Number(item.discount)}%
+                        </p>
+                      </div>
                       <p className="font-medium text-purple-700">
                         $
                         {(
-                          Number(item.orderedBookPrice) * Number(item.quantity)
+                          Number(item.orderedBookPrice) *
+                          Number(item.quantity) *
+                          Number(1 - item.discount / 100)
                         ).toFixed(2)}
                       </p>
                     </div>
@@ -97,12 +104,6 @@ export default async function OrdersPage() {
                 <span className="text-gray-500">Payment method:</span>
                 <span className="font-medium text-purple-700">
                   {order.payment.paymentMethod}
-                </span>
-              </p>
-              <p className="flex justify-between">
-                <span className="text-gray-500">Payment status:</span>
-                <span className="font-medium capitalize text-rose-700">
-                  {order.payment.pgStatus?.toLowerCase()}
                 </span>
               </p>
             </div>
