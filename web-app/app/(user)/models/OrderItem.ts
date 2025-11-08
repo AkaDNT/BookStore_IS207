@@ -8,4 +8,5 @@ export interface OrderItem {
   quantity: number;
   discount: number;
   orderedBookPrice: number;
+  imageUrl: string;
 }

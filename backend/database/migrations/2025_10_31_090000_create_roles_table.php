@@ -1,17 +1,19 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->bigIncrements('id');                 // bigserial
-            $table->string('name', 255)->unique();       // tên vai trò
-            $table->timestamps();                        // created_at, updated_at (without time zone)
-        });
+        if (!Schema::hasTable('roles')) {
+            Schema::create('roles', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->string('name', 255)->unique();
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
@@ -19,3 +21,4 @@ return new class extends Migration {
         Schema::dropIfExists('roles');
     }
 };
+

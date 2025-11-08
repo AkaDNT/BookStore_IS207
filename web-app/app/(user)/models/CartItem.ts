@@ -13,4 +13,5 @@ export interface CartItem {
   dimension: string;
   quantity: number;
   discount: number;
+  imageUrl: string;
 }

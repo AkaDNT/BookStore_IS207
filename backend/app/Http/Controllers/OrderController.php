@@ -212,6 +212,7 @@ class OrderController extends Controller
                 'quantity'          => $oi->quantity,
                 'discount'          => $oi->discount,
                 'orderedBookPrice'  => $oi->ordered_book_price,
+                'imageUrl' => optional($oi->book)->image_url,
             ];
         }
         return [

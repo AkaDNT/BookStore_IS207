@@ -166,20 +166,27 @@ class CartController extends Controller
     }
 
     public function totalItems(Request $request)
-    {
-        try {
-            $user = auth('api')->user();
-            $cart = Cart::withCount('cartItems')->where('user_id', $user->id)->first();
-            if (!$cart) {
-                return response()->json(0);
-            }
-            return response()->json($cart->cart_items_count);
-        } catch (QueryException $e) {
-            return $this->errorResponse(500, 'Database error', ['database' => [$e->getMessage()]]);
-        } catch (Exception $e) {
-            return $this->errorResponse(500, 'Server error', ['server' => [$e->getMessage()]]);
+{
+    try {
+        $user = auth('api')->user();
+        $cart = Cart::select('items_count','items_qty_sum')
+                    ->where('user_id', $user->id)
+                    ->first();
+
+        if (!$cart) {
+            return response()->json(0); // chưa có giỏ
         }
+
+        return response()->json((int)$cart->items_count);
+
+        // Nếu muốn badge = tổng số lượng:
+        // return response()->json((int)$cart->items_qty_sum);
+
+    } catch (\Throwable $e) {
+        return $this->errorResponse(500, 'Server error', ['server' => [$e->getMessage()]]);
     }
+}
+
 
     private function getOrCreateCart(int $userId): Cart
     {
@@ -202,6 +209,7 @@ class CartController extends Controller
             'price'    => (float) $ci->book_price, 
             'discount' => (float) $ci->discount,   
             'quantity' => (int) $ci->quantity,
+            'imageUrl' => optional($ci->book)->image_url,
         ];
     }
     return [

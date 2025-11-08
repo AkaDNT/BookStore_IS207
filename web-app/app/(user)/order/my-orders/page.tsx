@@ -4,6 +4,19 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { getMyOrders } from "../../actions/orderActions";
 
+function pickSrc(title: string, v?: string | null) {
+  const slug = (title || "book").toLowerCase().trim().replace(/\s+/g, "-");
+  if (
+    typeof v === "string" &&
+    v.trim() !== "" &&
+    v !== "null" &&
+    v !== "undefined"
+  ) {
+    return v;
+  }
+  return `/assets/${slug}.jpg`;
+}
+
 export default async function OrdersPage() {
   const orders = await getMyOrders();
 
@@ -61,9 +74,7 @@ export default async function OrdersPage() {
                 >
                   <div className="w-20 h-28 relative flex-shrink-0">
                     <Image
-                      src={`/assets/${item.title
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}.jpg`}
+                      src={pickSrc(item.title, item.imageUrl)}
                       alt={item.title}
                       fill
                       sizes="80px"

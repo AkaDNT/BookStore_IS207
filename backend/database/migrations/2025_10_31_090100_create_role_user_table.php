@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('role_user', function (Blueprint $table) {
+        if (!Schema::hasTable('role_user'))
+        {
+            Schema::create('role_user', function (Blueprint $table) {
             // Khớp kiểu với users.id và roles.id (bigint)
             $table->foreignId('user_id')
                   ->constrained('users')
@@ -20,6 +22,7 @@ return new class extends Migration {
             // Tránh trùng vai trò cho 1 user
             $table->primary(['user_id', 'role_id']); // hoặc dùng: $table->unique(['user_id', 'role_id']);
         });
+        }
     }
 
     public function down(): void
