@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { User } from "lucide-react";
 import { CurrentUser } from "@/app/(user)/actions/getCurrentUser";
 
@@ -13,6 +13,7 @@ export default function AccountDropdown({
   const [showDropdown, setShowDropdown] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   // Đóng dropdown khi click bên ngoài
   useEffect(() => {
@@ -25,6 +26,11 @@ export default function AccountDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Đóng dropdown khi chuyển route
+  useEffect(() => {
+    setShowDropdown(false);
+  }, [pathname]);
+
   return (
     <div className="relative" ref={ref}>
       <div
@@ -32,13 +38,14 @@ export default function AccountDropdown({
         onClick={() => setShowDropdown((prev) => !prev)}
       >
         <User size={24} />
-        <span className="text-sm mt-1">
+        {/* Ẩn nhãn ở mobile, hiện từ md+; co chữ theo breakpoint */}
+        <span className="mt-1 hidden md:block text-sm">
           {!user ? "Account" : user.userName}
         </span>
       </div>
 
       {showDropdown && (
-        <div className="absolute right-0 mt-3 w-44 bg-white border border-gray-200 shadow-xl rounded-lg z-50 overflow-hidden">
+        <div className="absolute right-0 mt-3 w-44 md:w-56 bg-white border border-gray-200 shadow-xl rounded-lg z-50 overflow-hidden">
           {!user ? (
             <button
               onClick={() => {
