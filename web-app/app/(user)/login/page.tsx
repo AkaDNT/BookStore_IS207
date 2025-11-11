@@ -1,70 +1,96 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { loginUser } from "./action";
 
 export default function LoginPage() {
   const [state, formAction] = useActionState(loginUser, null);
 
   return (
-    <div className="py-20 px-4 bg-gray-100">
-      <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md mx-auto">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 md:px-8 py-10 sm:py-14">
+      <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg bg-white shadow-xl rounded-2xl p-6 sm:p-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-2 sm:mb-3">
           Login
         </h2>
-        <form action={formAction} className="space-y-5">
+        <p className="text-sm text-gray-600 text-center mb-6 sm:mb-8">
+          Enter your credentials to continue.
+        </p>
+
+        <form action={formAction} className="space-y-4 sm:space-y-5" noValidate>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="username"
+              className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5"
+            >
               User Name
             </label>
             <input
+              id="username"
               name="username"
               type="text"
+              inputMode="text"
+              autoComplete="username"
               placeholder="Your user name"
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-sm sm:text-base
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5"
+            >
               Password
             </label>
             <input
+              id="password"
               name="password"
               type="password"
+              autoComplete="current-password"
               placeholder="••••••••"
               required
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-sm sm:text-base
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          {/* Forgot Password link */}
-          <p
-            onClick={() => (window.location.href = "/forgot-password")}
-            className="text-sm text-blue-600 text-right hover:underline cursor-pointer"
-          >
-            Forgot password?
-          </p>
+
+          <div className="text-right -mt-1">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 cursor-pointer"
+            className="w-full h-11 sm:h-12 rounded-xl bg-blue-600 text-white text-sm sm:text-base font-medium
+                       hover:bg-blue-700 transition"
           >
             Log in
           </button>
-          {state?.message && (
-            <p className="text-red-500 text-center text-sm mt-2">
-              {state.message}
-            </p>
-          )}
+
+          <div role="status" aria-live="polite" className="min-h-[1.25rem]">
+            {state?.message && (
+              <p className="text-red-500 text-center text-sm mt-2">
+                {state.message}
+              </p>
+            )}
+          </div>
         </form>
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Don&apos;t have an account?{" "}
-          <span
-            onClick={() => (window.location.href = "/register")}
-            className="text-blue-600 font-semibold cursor-pointer hover:underline"
+          <Link
+            href="/register"
+            className="text-blue-600 font-semibold hover:underline"
           >
             Sign up
-          </span>
+          </Link>
         </p>
       </div>
     </div>

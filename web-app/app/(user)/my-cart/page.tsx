@@ -7,10 +7,9 @@ import Link from "next/link";
 const fmtMoney = (v: number, currency = "USD", locale = "en-US") =>
   new Intl.NumberFormat(locale, { style: "currency", currency }).format(v);
 
-// giống BookImage: chọn src hợp lệ, nếu không fallback sang assets theo slug
+// chọn src hợp lệ, nếu không fallback sang assets theo slug
 function pickSrc(title: string, v?: string | null) {
   const slug = (title || "book").toLowerCase().trim().replace(/\s+/g, "-");
-  console.log(v);
   if (
     typeof v === "string" &&
     v.trim() !== "" &&
@@ -29,10 +28,10 @@ export default async function MyCartPage() {
     return <div className="text-center py-10">Failed to load cart.</div>;
   }
 
-  // Tính lại subtotal/tiết kiệm theo discount từ client (phòng khi backend chưa áp dụng)
+  // subtotal / saved
   const summary = data.books.reduce(
     (acc: { subtotal: number; saved: number }, b: any) => {
-      const price = Number(b.price) || 0; // giá gốc
+      const price = Number(b.price) || 0;
       const discount = Math.max(Number(b.discount) || 0, 0);
       const qty = Math.max(Number(b.quantity) || 0, 0);
       const finalUnit = discount > 0 ? price * (1 - discount / 100) : price;
@@ -44,15 +43,17 @@ export default async function MyCartPage() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">Your Shopping Cart</h1>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-10">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
+        Your Shopping Cart
+      </h1>
 
       {data.books.length === 0 ? (
         <p className="text-gray-500">Your cart is currently empty.</p>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {data.books.map((book: any) => {
-            const price = Number(book.price) || 0; // giá gốc
+            const price = Number(book.price) || 0;
             const discount = Math.max(Number(book.discount) || 0, 0);
             const qty = Math.max(Number(book.quantity) || 0, 0);
             const hasDiscount = discount > 0;
@@ -61,46 +62,49 @@ export default async function MyCartPage() {
               : price;
             const lineTotal = finalUnit * qty;
             const saved = Math.max(price - finalUnit, 0) * qty;
-
-            // chọn ảnh theo logic BookImage
             const imgSrc = pickSrc(book.title, book.imageUrl);
 
             return (
               <div
                 key={book.id}
-                className="flex gap-4 border rounded-xl p-4 shadow-md bg-white hover:shadow-lg transition-shadow"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4 border rounded-xl p-4 shadow-md bg-white hover:shadow-lg transition-shadow"
               >
-                <div className="w-24 h-32 relative">
+                {/* Image */}
+                <div className="relative w-24 h-32 sm:w-28 sm:h-36 md:w-32 md:h-40 mx-auto sm:mx-0 flex-shrink-0">
                   <Image
                     src={imgSrc}
                     alt={book.title}
                     fill
                     className="object-cover rounded-lg border"
-                    sizes="96px"
+                    sizes="(max-width: 640px) 96px, (max-width: 768px) 112px, 128px"
                   />
                 </div>
 
-                <div className="flex-1">
-                  <h2 className="text-lg font-bold text-gray-900">
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 break-words">
                     {book.title}
                   </h2>
-                  <p className="text-sm text-gray-500">{book.author}</p>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {book.author}
+                  </p>
+
                   <p className="text-sm mt-2 text-gray-700 line-clamp-2">
                     {book.description}
                   </p>
 
-                  {/* Cụm giá: giá sau giảm (đen), giá gốc (xám gạch), chip %-OFF */}
-                  <div className="mt-3 flex items-center flex-wrap gap-2">
-                    <span className="text-xl font-semibold text-gray-900">
+                  {/* Price */}
+                  <div className="mt-3 flex items-center flex-wrap gap-x-2 gap-y-1">
+                    <span className="text-lg sm:text-xl font-semibold text-gray-900">
                       {fmtMoney(finalUnit)}
                     </span>
                     {hasDiscount && (
                       <>
-                        <span className="text-xl font-semibold text-gray-500 line-through">
+                        <span className="text-base sm:text-lg font-semibold text-gray-500 line-through">
                           {fmtMoney(price)}
                         </span>
                         <span
-                          className="inline-flex items-center rounded-md bg-rose-50 text-rose-600 px-2 py-0.5 text-xl font-bold"
+                          className="inline-flex items-center rounded-md bg-rose-50 text-rose-600 px-2 py-0.5 text-xs sm:text-sm font-bold"
                           aria-label={`-${discount}%`}
                           title={`-${discount}%`}
                         >
@@ -110,22 +114,23 @@ export default async function MyCartPage() {
                     )}
                   </div>
 
-                  {/* Số lượng & line total */}
-                  <div className="mt-1 flex items-baseline justify-between">
-                    <p className="text-sm text-gray-600">Quantity: {qty}</p>
-                    <p className="text-base font-semibold text-gray-900">
+                  {/* Qty & line total */}
+                  <div className="mt-2 flex items-baseline justify-between gap-3">
+                    <p className="text-xs sm:text-sm text-gray-600">
+                      Quantity: {qty}
+                    </p>
+                    <p className="text-sm sm:text-base font-semibold text-gray-900">
                       {fmtMoney(lineTotal)}
                     </p>
                   </div>
 
-                  {/* Tiết kiệm cho item */}
                   {hasDiscount && saved > 0 && (
                     <p className="text-xs text-emerald-600 mt-1">
                       You save {fmtMoney(saved)} on this item
                     </p>
                   )}
 
-                  <button className="mt-2 text-sm text-red-500 hover:underline">
+                  <button className="mt-2 text-sm text-red-500 hover:underline w-fit">
                     Remove
                   </button>
                 </div>
@@ -133,19 +138,19 @@ export default async function MyCartPage() {
             );
           })}
 
-          {/* Tóm tắt giỏ hàng */}
-          <div className="border-t pt-6 text-right space-y-1">
+          {/* Summary */}
+          <div className="border-t pt-5 sm:pt-6 text-right space-y-1">
             {summary.saved > 0 && (
-              <p className="text-sm text-emerald-700">
+              <p className="text-xs sm:text-sm text-emerald-700">
                 You save {fmtMoney(summary.saved)} in total
               </p>
             )}
-            <p className="text-lg font-bold">
+            <p className="text-lg sm:text-xl font-bold">
               Total: {fmtMoney(summary.subtotal)}
             </p>
             <Link
               href="/order"
-              className="inline-block px-6 py-2 bg-rose-600 text-white font-semibold rounded-xl hover:bg-rose-700 transition"
+              className="inline-block px-5 sm:px-6 py-2 sm:py-2.5 bg-rose-600 text-white text-sm sm:text-base font-semibold rounded-xl hover:bg-rose-700 transition"
             >
               Order
             </Link>

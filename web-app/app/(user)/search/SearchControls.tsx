@@ -18,36 +18,32 @@ export default function SearchControls() {
   };
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newParams = new URLSearchParams(currentParams);
-    const value = e.target.value;
-    value ? newParams.set("sort", value) : newParams.delete("sort");
-    updateParams(newParams);
+    const p = new URLSearchParams(currentParams);
+    const v = e.target.value;
+    v ? p.set("sort", v) : p.delete("sort");
+    updateParams(p);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newParams = new URLSearchParams(currentParams);
-    const value = e.target.value;
-    value
-      ? newParams.set("filter_category_eq", value)
-      : newParams.delete("filter_category_eq");
-    updateParams(newParams);
+    const p = new URLSearchParams(currentParams);
+    const v = e.target.value;
+    v ? p.set("filter_category_eq", v) : p.delete("filter_category_eq");
+    updateParams(p);
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newParams = new URLSearchParams(currentParams);
-    const value = e.target.value;
-    value
-      ? newParams.set("filter_price_lte", value)
-      : newParams.delete("filter_price_lte");
-    updateParams(newParams);
+    const p = new URLSearchParams(currentParams);
+    const v = e.target.value;
+    v ? p.set("filter_price_lte", v) : p.delete("filter_price_lte");
+    updateParams(p);
   };
 
   return (
-    <div className="flex gap-4 p-4 bg-gray-50 border-b">
+    <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 border-b">
       <select
         value={sort}
         onChange={handleSortChange}
-        className="border rounded-md px-3 py-2 w-48"
+        className="border rounded-md px-3 py-2 w-full sm:w-56 sm:min-w-[14rem]"
       >
         <option value="">Order By</option>
         <option value="price,asc">Price: Low to High</option>
@@ -57,7 +53,7 @@ export default function SearchControls() {
       <select
         value={categoryFilter}
         onChange={handleCategoryChange}
-        className="border rounded-md px-3 py-2 w-48"
+        className="border rounded-md px-3 py-2 w-full sm:w-56 sm:min-w-[14rem]"
       >
         <option value="">All Categories</option>
         <option value="Fiction">Fiction</option>
@@ -67,7 +63,7 @@ export default function SearchControls() {
       <select
         value={priceFilter}
         onChange={handlePriceChange}
-        className="border rounded-md px-3 py-2 w-48"
+        className="border rounded-md px-3 py-2 w-full sm:w-56 sm:min-w-[14rem]"
       >
         <option value="">Price Range</option>
         <option value="20">Under $20</option>

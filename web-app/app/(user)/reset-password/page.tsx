@@ -16,31 +16,17 @@ export default function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!token) {
-      toast.error("Invalid reset link.");
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
-      return;
-    }
+    if (!token) return toast.error("Invalid reset link.");
+    if (password.length < 6)
+      return toast.error("Password must be at least 6 characters.");
+    if (password !== confirmPassword)
+      return toast.error("Passwords do not match.");
 
     setLoading(true);
     try {
       const result = await sendResetPasswordRequest(password, token);
       toast.success(result.message || "Password reset successfully.");
-
-      // ✅ Redirect to login page after 2s
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
+      setTimeout(() => router.push("/login"), 1500);
     } catch (err) {
       toast.error("Failed to reset password. Please try again. Error: " + err);
     } finally {
@@ -49,42 +35,65 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="bg-gray-100 px-4 py-10 min-h-screen flex justify-center items-start">
-      <div className="max-w-md mt-24 w-full bg-white shadow-xl rounded-xl p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 md:px-8 py-10 sm:py-14">
+      <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg bg-white shadow-xl rounded-2xl p-6 sm:p-8">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-2 sm:mb-3">
           Reset Password
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <p className="text-sm text-gray-600 text-center mb-6 sm:mb-8">
+          Enter a new password for your account.
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 sm:space-y-5"
+          noValidate
+        >
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="new-password"
+              className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5"
+            >
               New Password
             </label>
             <input
+              id="new-password"
               type="password"
               required
               placeholder="Enter new password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoComplete="new-password"
+              className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-sm sm:text-base
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="confirm-password"
+              className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5"
+            >
               Confirm Password
             </label>
             <input
+              id="confirm-password"
               type="password"
               required
               placeholder="Confirm new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              autoComplete="new-password"
+              className="w-full h-11 sm:h-12 px-4 border border-gray-300 rounded-xl text-sm sm:text-base
+                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+            className="w-full h-11 sm:h-12 bg-blue-600 text-white rounded-xl text-sm sm:text-base font-medium
+                       hover:bg-blue-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>

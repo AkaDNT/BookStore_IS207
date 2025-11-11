@@ -7,13 +7,21 @@ export default async function OrderPage() {
 
   if (!currentUser) {
     return (
-      <div className="text-center py-10">Please log in to place an order.</div>
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
+        <div className="text-center text-gray-700">
+          <p className="text-base sm:text-lg">
+            Please log in to place an order.
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold mb-6">Select a delivery address</h1>
+    <div className="max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-10">
+      <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">
+        Select a delivery address
+      </h1>
       <OrderForm addresses={currentUser.addresses} />
     </div>
   );

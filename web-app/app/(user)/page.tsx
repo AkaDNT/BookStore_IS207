@@ -6,13 +6,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function normalizeBooks(json: any): any[] {
-  // hỗ trợ nhiều shape khác nhau
   if (Array.isArray(json?.data)) return json.data;
   if (Array.isArray(json)) return json;
   if (Array.isArray(json?.items)) return json.items;
-  // một số API trả { data: { items: [...] } }
   if (Array.isArray(json?.data?.items)) return json.data.items;
-  return []; // fallback an toàn
+  return [];
 }
 
 export default async function Home() {
@@ -29,20 +27,16 @@ export default async function Home() {
       const text = await res.text().catch(() => "");
       throw new Error(`Fetch failed ${res.status}: ${text}`);
     }
-    // nếu backend đôi khi trả text/json lẫn lộn, vẫn cố parse an toàn
     const ct = res.headers.get("content-type") || "";
     json = ct.includes("application/json")
       ? await res.json()
       : JSON.parse(await res.text());
   } catch (e) {
-    // không để crash UI — render list rỗng vẫn OK
     console.error("Fetch/parse error at /books:", e);
     json = {};
   }
 
   const items = normalizeBooks(json);
-
-  // sort an toàn
   const sortedBooks = items.slice().sort((a, b) => {
     const da = a?.publicationDate ? new Date(a.publicationDate).getTime() : 0;
     const db = b?.publicationDate ? new Date(b.publicationDate).getTime() : 0;
@@ -50,7 +44,7 @@ export default async function Home() {
   });
 
   return (
-    <div>
+    <div className="space-y-8 md:space-y-10">
       <Slider />
       <KeyHighlights />
       <ListBooks books={items} title="Selected for you" />
