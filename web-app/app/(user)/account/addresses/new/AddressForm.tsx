@@ -44,7 +44,7 @@ export default function AddressForm({ address }: Props) {
       if (res?.error) throw res.error;
       router.push(`/account/addresses`);
     } catch (error: any) {
-      toast.error(error.status + " " + error.message);
+      toast.error(error.message);
     }
   }
 

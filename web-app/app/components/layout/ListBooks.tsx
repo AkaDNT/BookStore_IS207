@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import BookImage from "../ui/BookImage";
 import Link from "next/link";
 import { Book } from "@/app/(user)/models/Book";
+import AddToCartSection from "../ui/AddToCartSection";
 
 interface Props {
   books: Book[];
@@ -119,16 +120,7 @@ export default function ListBooks({ books, title }: Props) {
                 </div>
 
                 {/* Nút Add to cart */}
-                <button
-                  className="
-                    w-full h-10 sm:h-11 rounded-md
-                    bg-purple-600 text-white
-                    hover:bg-purple-700 transition
-                    text-sm sm:text-base
-                  "
-                >
-                  Add to cart
-                </button>
+                <AddToCartSection bookId={String(book.id)}></AddToCartSection>
               </div>
             );
           })}
