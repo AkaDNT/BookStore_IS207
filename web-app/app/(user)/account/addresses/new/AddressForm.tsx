@@ -48,6 +48,13 @@ export default function AddressForm({ address }: Props) {
     }
   }
 
+  // helper chung cho các field yêu cầu ít nhất 2 ký tự
+  const requiredMin2 = (label: string) => ({
+    required: `${label} is required`,
+    validate: (value: string) =>
+      value?.trim().length >= 2 || `${label} must be at least 2 characters`,
+  });
+
   return (
     <div className="mx-auto w-full max-w-3xl px-3 sm:px-4">
       <form
@@ -66,7 +73,7 @@ export default function AddressForm({ address }: Props) {
             name="street"
             label="Street"
             control={control}
-            rules={{ required: "Street is required" }}
+            rules={requiredMin2("Street")}
           />
         </div>
 
@@ -76,7 +83,7 @@ export default function AddressForm({ address }: Props) {
             name="buildingName"
             label="Building Name"
             control={control}
-            rules={{ required: "Building name is required" }}
+            rules={requiredMin2("Building name")}
           />
         </div>
 
@@ -86,7 +93,7 @@ export default function AddressForm({ address }: Props) {
             name="ward"
             label="Ward"
             control={control}
-            rules={{ required: "Ward is required" }}
+            rules={requiredMin2("Ward")}
           />
         </div>
         <div>
@@ -94,7 +101,7 @@ export default function AddressForm({ address }: Props) {
             name="district"
             label="District"
             control={control}
-            rules={{ required: "District is required" }}
+            rules={requiredMin2("District")}
           />
         </div>
 
@@ -104,7 +111,7 @@ export default function AddressForm({ address }: Props) {
             name="city"
             label="City"
             control={control}
-            rules={{ required: "City is required" }}
+            rules={requiredMin2("City")}
           />
         </div>
 

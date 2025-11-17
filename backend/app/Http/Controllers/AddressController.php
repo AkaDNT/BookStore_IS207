@@ -17,11 +17,11 @@ class AddressController extends Controller
     {
         try {
             $data = $request->validate([
-                'street'       => ['required','string','min:5'],
-                'buildingName' => ['required','string','min:5'],
-                'city'         => ['required','string','min:4'],
-                'district'     => ['required','string','min:4'],
-                'ward'         => ['required','string','min:4'],
+                'street'       => ['required','string','min:2'],
+                'buildingName' => ['required','string','min:2'],
+                'city'         => ['required','string','min:2'],
+                'district'     => ['required','string','min:2'],
+                'ward'         => ['required','string','min:2'],
             ]);
 
             $user = auth('api')->user();

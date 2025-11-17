@@ -49,9 +49,22 @@ async function del(url: string) {
   return handleResponse(response);
 }
 
+function errorsToString(errors: any): string {
+  if (!errors || typeof errors !== "object") return "";
+
+  return Object.entries(errors)
+    .map(([field, messages]) => {
+      if (Array.isArray(messages)) {
+        return `${field}: ${messages.join(", ")}`.toLowerCase();
+      }
+      return `${field}: ${messages}`.toLowerCase();
+    })
+    .join("\n");
+}
+
 export async function handleResponse(response: Response) {
   const text = await response.text();
-  let data;
+  let data: any;
 
   try {
     data = text ? JSON.parse(text) : null;
@@ -62,10 +75,23 @@ export async function handleResponse(response: Response) {
   if (response.ok) {
     return data || response.statusText;
   } else {
+    let message: string;
+
+    if (data && data.errors) {
+      message = errorsToString(data.errors);
+    } else if (typeof data === "string") {
+      message = data;
+    } else if (data && data.message) {
+      message = data.message;
+    } else {
+      message = response.statusText;
+    }
+
     const error = {
-      status: response.status,
-      message: typeof data === "string" ? data : response.statusText,
+      status: `Code ${response.status}: ${"\n"}`,
+      message,
     };
+
     return { error };
   }
 }
