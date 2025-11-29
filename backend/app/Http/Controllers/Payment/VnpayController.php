@@ -24,140 +24,211 @@ class VnpayController extends Controller
 {
     public function create(Request $request)
 {
+    Log::info('VNPAY_CREATE_REQUEST_IN', [
+        'ip'        => $request->ip(),
+        'payload'   => $request->all(),
+        'user_id'   => optional(auth('api')->user())->id,
+    ]);
+
     $data = $request->validate([
         'addressId' => ['required', 'integer', 'min:1'],
     ]);
 
-    $user   = auth('api')->user();
-    $ipAddr = $request->ip(); 
+    $user = auth('api')->user();
+    if (!$user) {
+        Log::warning('VNPAY_CREATE_NO_AUTH_USER');
+        return response()->json(['message' => 'Unauthenticated'], 401);
+    }
 
-    return DB::transaction(function () use ($user, $data, $ipAddr) {
+    $ipAddr = $request->ip();
 
-        $cart = Cart::with('cartItems.book')
-            ->where('user_id', $user->id)
-            ->first();
+    try {
+        return DB::transaction(function () use ($user, $data, $ipAddr) {
 
-        if (!$cart || $cart->cartItems->isEmpty()) {
-            return response()->json(['message' => 'Cart empty'], 400);
-        }
+            $cart = Cart::with('cartItems.book')
+                ->where('user_id', $user->id)
+                ->first();
 
-        $address = Address::where('id', $data['addressId'])
-            ->where('user_id', $user->id)
-            ->firstOrFail();
-
-        // 1. Payment PENDING
-        $payment = Payment::create([
-            'payment_method' => 'VNPAY',
-            'pg_status'      => 'PENDING',
-            'pg_name'        => 'VNPAY',
-        ]);
-
-        // 2. Order PENDING
-        $order = Order::create([
-            'email'          => $user->email,
-            'order_date'     => now()->toDateString(),
-            'payment_id'     => $payment->id,
-            'address_id'     => $address->id,
-            'total_amount'   => $cart->total_price,
-            'order_status'   => 'ACCEPTED',
-            'payment_status' => 'PENDING',
-            'order_code'     => strtoupper(Str::ulid()),
-        ]);
-
-        // 3. Copy cart items sang order_items
-        $itemsPayload = [];
-        foreach ($cart->cartItems as $ci) {
-            if (!$ci->book) {
-                return response()->json(['message' => 'Invalid cart item'], 400);
+            if (!$cart || $cart->cartItems->isEmpty()) {
+                Log::warning('VNPAY_CREATE_CART_EMPTY', [
+                    'user_id' => $user->id,
+                ]);
+                return response()->json(['message' => 'Cart empty'], 400);
             }
 
-            $itemsPayload[] = [
-                'order_id'           => $order->id,
-                'book_id'            => $ci->book->id,
-                'quantity'           => $ci->quantity,
-                'discount'           => $ci->discount,
-                'ordered_book_price' => $ci->book_price,
-                'created_at'         => now(),
-                'updated_at'         => now(),
+            $address = Address::where('id', $data['addressId'])
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+
+            Log::info('VNPAY_CREATE_CART_ADDRESS_OK', [
+                'user_id'    => $user->id,
+                'cart_id'    => $cart->id,
+                'address_id' => $address->id,
+            ]);
+
+            // 1. Payment PENDING
+            $payment = Payment::create([
+                'payment_method' => 'VNPAY',
+                'pg_status'      => 'PENDING',
+                'pg_name'        => 'VNPAY',
+            ]);
+
+            // 2. Order PENDING
+            $order = Order::create([
+                'email'          => $user->email,
+                'order_date'     => now()->toDateString(),
+                'payment_id'     => $payment->id,
+                'address_id'     => $address->id,
+                'total_amount'   => $cart->total_price,
+                'order_status'   => 'ACCEPTED',
+                'payment_status' => 'PENDING',
+                'order_code'     => strtoupper(Str::ulid()),
+            ]);
+
+            Log::info('VNPAY_CREATE_ORDER_PAYMENT_CREATED', [
+                'user_id'     => $user->id,
+                'order_id'    => $order->id,
+                'order_code'  => $order->order_code,
+                'payment_id'  => $payment->id,
+                'total_usd'   => $order->total_amount,
+            ]);
+
+            // 3. Copy cart items sang order_items
+            $itemsPayload = [];
+            foreach ($cart->cartItems as $ci) {
+                if (!$ci->book) {
+                    Log::error('VNPAY_CREATE_INVALID_CART_ITEM', [
+                        'cart_id'   => $cart->id,
+                        'cart_item' => $ci->id ?? null,
+                    ]);
+                    return response()->json(['message' => 'Invalid cart item'], 400);
+                }
+
+                $itemsPayload[] = [
+                    'order_id'           => $order->id,
+                    'book_id'            => $ci->book->id,
+                    'quantity'           => $ci->quantity,
+                    'discount'           => $ci->discount,
+                    'ordered_book_price' => $ci->book_price,
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ];
+            }
+            OrderItem::insert($itemsPayload);
+
+            Log::info('VNPAY_CREATE_ORDER_ITEMS_INSERTED', [
+                'order_id' => $order->id,
+                'items'    => count($itemsPayload),
+            ]);
+
+            // 4. Build URL thanh toán VNPAY 
+            $vnp_TmnCode    = env('VNP_TMN_CODE');
+            $vnp_HashSecret = trim(env('VNP_HASH_SECRET')); // trim luôn cho chắc
+            $vnp_Url        = env('VNP_URL');          
+            $vnp_ReturnUrl  = env('VNP_RETURN_URL');  
+
+            Log::info('VNPAY_CREATE_ENV_VALUES', [
+                'vnp_TmnCode'   => $vnp_TmnCode,
+                'vnp_Url'       => $vnp_Url,
+                'vnp_ReturnUrl' => $vnp_ReturnUrl,
+                'hash_len'      => $vnp_HashSecret ? strlen($vnp_HashSecret) : 0,
+            ]);
+
+            $usdAmount = (float) $order->total_amount;
+
+            // Convert sang VND bằng API
+            Log::info('VNPAY_CREATE_FX_CALL', [
+                'amount_usd' => $usdAmount,
+            ]);
+
+            $vndAmount = $this->usdToVnd($usdAmount);
+
+            Log::info('VNPAY_CREATE_FX_RESULT', [
+                'amount_usd' => $usdAmount,
+                'amount_vnd' => $vndAmount,
+            ]);
+
+            $order->total_amount_vnd = $vndAmount;
+            $order->save();
+
+            // sửa luôn: check object thay vì property_exists để tránh lỗi null
+            if ($order->payment) {
+                $order->payment->pg_amount = $vndAmount;
+                $order->payment->save();
+            }
+
+            $vnp_TxnRef = $order->order_code;
+            $vnp_Amount = $vndAmount * 100; 
+
+            $vnp_OrderInfo = 'Thanh toan don hang #' . $order->order_code;
+            $vnp_OrderType = 'billpayment';
+            $vnp_Locale    = 'vn';
+            $vnp_IpAddr    = $ipAddr;
+
+            $inputData = [
+                "vnp_Version"    => "2.1.0",
+                "vnp_TmnCode"    => $vnp_TmnCode,
+                "vnp_Amount"     => $vnp_Amount,
+                "vnp_Command"    => "pay",
+                "vnp_CreateDate" => now()->format('YmdHis'),
+                "vnp_CurrCode"   => "VND",
+                "vnp_IpAddr"     => $vnp_IpAddr,
+                "vnp_Locale"     => $vnp_Locale,
+                "vnp_OrderInfo"  => $vnp_OrderInfo,
+                "vnp_OrderType"  => $vnp_OrderType,
+                "vnp_ReturnUrl"  => $vnp_ReturnUrl,
+                "vnp_TxnRef"     => $vnp_TxnRef,
             ];
-        }
-        OrderItem::insert($itemsPayload);
 
-        // 4. Build URL thanh toán VNPAY 
-        $vnp_TmnCode    = env('VNP_TMN_CODE');
-        $vnp_HashSecret = env('VNP_HASH_SECRET');
-        $vnp_Url        = env('VNP_URL');          
-        $vnp_ReturnUrl  = env('VNP_RETURN_URL');  
+            Log::info('VNPAY_CREATE_INPUT_DATA_BEFORE_SORT', [
+                'inputData' => $inputData,
+            ]);
 
-        $usdAmount = (float) $order->total_amount;
-
-        // Convert sang VND bằng API
-        $vndAmount = $this->usdToVnd($usdAmount);
-
-        $order->total_amount_vnd = $vndAmount;
-        $order->save();
-
-        if (property_exists($order->payment, 'pg_amount')) {
-            $order->payment->pg_amount = $vndAmount;
-            $order->payment->save();
-        }
-
-        $vnp_TxnRef = $order->order_code;
-        $vnp_Amount = $vndAmount * 100; 
-
-        $vnp_OrderInfo = 'Thanh toan don hang #' . $order->order_code;
-        $vnp_OrderType = 'billpayment';
-        $vnp_Locale    = 'vn';
-        $vnp_IpAddr    = $ipAddr;
-
-        $inputData = [
-            "vnp_Version"    => "2.1.0",
-            "vnp_TmnCode"    => $vnp_TmnCode,
-            "vnp_Amount"     => $vnp_Amount,
-            "vnp_Command"    => "pay",
-            "vnp_CreateDate" => now()->format('YmdHis'),
-            "vnp_CurrCode"   => "VND",
-            "vnp_IpAddr"     => $vnp_IpAddr,
-            "vnp_Locale"     => $vnp_Locale,
-            "vnp_OrderInfo"  => $vnp_OrderInfo,
-            "vnp_OrderType"  => $vnp_OrderType,
-            "vnp_ReturnUrl"  => $vnp_ReturnUrl,
-            "vnp_TxnRef"     => $vnp_TxnRef,
-        ];
-
-        ksort($inputData);
-        $query    = "";
-        $hashdata = "";
-        $i        = 0;
-        foreach ($inputData as $key => $value) {
-            if ($i == 1) {
-                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-            } else {
-                $hashdata .= urlencode($key) . "=" . urlencode($value);
-                $i = 1;
+            ksort($inputData);
+            $query    = "";
+            $hashdata = "";
+            $i        = 0;
+            foreach ($inputData as $key => $value) {
+                if ($i == 1) {
+                    $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+                } else {
+                    $hashdata .= urlencode($key) . "=" . urlencode($value);
+                    $i = 1;
+                }
+                $query .= urlencode($key) . "=" . urlencode($value) . '&';
             }
-            $query .= urlencode($key) . "=" . urlencode($value) . '&';
-        }
 
-        $vnpUrl = $vnp_Url . "?" . $query;
-        if ($vnp_HashSecret) {
-            $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
-            $vnpUrl       .= 'vnp_SecureHash=' . $vnpSecureHash;
-        }
+            $vnpUrl = $vnp_Url . "?" . $query;
+            if ($vnp_HashSecret) {
+                $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+                $vnpUrl       .= 'vnp_SecureHash=' . $vnpSecureHash;
+            }
 
-        Log::info('VNPAY_CREATE_HASH', [
-            'hashData' => $hashdata,
-            'url'      => $vnpUrl,
+            Log::info('VNPAY_CREATE_HASH', [
+                'hashData'    => $hashdata,
+                'vnp_Url'     => $vnp_Url,
+                'final_vnpUrl'=> $vnpUrl,
+            ]);
+
+            return response()->json([
+                'code'      => '00',
+                'message'   => 'success',
+                'data'      => $vnpUrl,
+                'orderCode' => $order->order_code,
+            ]);
+        });
+    } catch (\Throwable $e) {
+        Log::error('VNPAY_CREATE_EXCEPTION', [
+            'message' => $e->getMessage(),
+            'trace'   => $e->getTraceAsString(),
         ]);
 
         return response()->json([
-            'code'      => '00',
-            'message'   => 'success',
-            'data'      => $vnpUrl,                 // giống $returnData['data']
-            'orderCode' => $order->order_code,      // thêm cho FE dễ tra
-        ]);
-    });
+            'message' => 'Có lỗi xảy ra khi tạo giao dịch VNPAY',
+        ], 500);
+    }
 }
+
 
 
     /**
