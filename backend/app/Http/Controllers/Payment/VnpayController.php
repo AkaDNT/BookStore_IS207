@@ -47,7 +47,7 @@ class VnpayController extends Controller
 
         // 1. Payment PENDING
         $payment = Payment::create([
-            'payment_method' => 'vnpay',
+            'payment_method' => 'VNPAY',
             'pg_status'      => 'PENDING',
             'pg_name'        => 'VNPAY',
         ]);
