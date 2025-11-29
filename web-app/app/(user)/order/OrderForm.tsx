@@ -179,6 +179,16 @@ export default function OrderForm({ addresses }: Props) {
             </label>
           ))}
         </div>
+        <div className="mt-2">
+          <a
+            href="https://sandbox.vnpayment.vn/apis/vnpay-demo/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center text-xs sm:text-sm text-sky-600 hover:underline"
+          >
+            Thông tin thẻ test VNPAY
+          </a>
+        </div>
       </div>
 
       <button
