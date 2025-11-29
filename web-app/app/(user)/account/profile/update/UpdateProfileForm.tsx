@@ -43,7 +43,6 @@ export default function UpdateProfileForm({ user }: Props) {
         throw res.error;
       }
       router.push(`/account/profile`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.status + " " + error.message);
     }

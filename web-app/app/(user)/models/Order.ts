@@ -19,5 +19,5 @@ export interface Order {
   paymentStatus: PaymentStatus | null;
 
   addressId: number;
-  payment: Payment | null;
+  payment: Payment;
 }

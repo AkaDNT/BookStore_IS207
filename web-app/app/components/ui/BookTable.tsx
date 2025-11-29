@@ -68,6 +68,7 @@ export default function BookTable({ books }: Props) {
           </td>
         </tr>
       )),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [books]
   );
 

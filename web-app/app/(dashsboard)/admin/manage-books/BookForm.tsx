@@ -78,7 +78,6 @@ export default function BookForm({ book }: Props) {
       if (res?.error) throw res.error;
 
       router.push(`/admin/manage-books`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.status + " " + error.message);
     }
