@@ -25,3 +25,7 @@ export const addToCart = async (
     `/carts/books/${id}/quantity/${quantity}`
   );
 };
+
+export const deleteBookFromCart = async (bookId: string) => {
+  return await fetchWrapper.del(`/carts/book/${bookId}`);
+};

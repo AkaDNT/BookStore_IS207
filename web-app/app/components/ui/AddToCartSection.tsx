@@ -43,7 +43,7 @@ export default function AddToCartSection({ bookId }: Props) {
         <label className="text-sm font-medium text-gray-700">Quantity:</label>
         <div className="flex items-center gap-4 mt-2">
           <button
-            className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 text-lg font-bold hover:bg-gray-300"
+            className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 text-lg font-bold hover:bg-gray-300 cursor-pointer"
             onClick={() => handleQuantityChange(-1)}
           >
             -
@@ -52,7 +52,7 @@ export default function AddToCartSection({ bookId }: Props) {
             {quantity}
           </span>
           <button
-            className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 text-lg font-bold hover:bg-gray-300"
+            className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-200 text-lg font-bold hover:bg-gray-300 cursor-pointer"
             onClick={() => handleQuantityChange(1)}
           >
             +
@@ -62,7 +62,7 @@ export default function AddToCartSection({ bookId }: Props) {
 
       <button
         ref={buttonRef}
-        className="w-full bg-purple-600 text-white py-3 md:py-3.5 text-base md:text-lg font-medium rounded-xl shadow hover:bg-purple-700 transition"
+        className="w-full bg-purple-600 text-white py-3 md:py-3.5 text-base md:text-lg font-medium rounded-xl shadow hover:bg-purple-700 transition cursor-pointer"
         onClick={handleAddToCart}
       >
         Add to Cart

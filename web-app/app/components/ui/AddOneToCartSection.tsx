@@ -8,7 +8,7 @@ interface Props {
   bookId: string;
 }
 
-export default function AddToCartSection({ bookId }: Props) {
+export default function AddOneToCartSection({ bookId }: Props) {
   const router = useRouter();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -37,7 +37,7 @@ export default function AddToCartSection({ bookId }: Props) {
     <div className="space-y-4">
       <button
         ref={buttonRef}
-        className="w-full bg-purple-600 text-white py-3 md:py-3.5 text-base md:text-lg font-medium rounded-xl shadow hover:bg-purple-700 transition"
+        className="w-full bg-purple-600 text-white py-3 md:py-3.5 text-base md:text-lg font-medium rounded-xl shadow hover:bg-purple-700 transition cursor-pointer"
         onClick={handleAddToCart}
       >
         Add to Cart
