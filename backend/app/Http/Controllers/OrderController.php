@@ -190,6 +190,47 @@ class OrderController extends Controller
         }
     }
 
+    public function getOrderByCode(string $orderCode)
+{
+    try {
+        $user = auth('api')->user();
+        if (!$user) {
+            return $this->errorResponse(401, 'Unauthenticated', [
+                'auth' => ['Unauthenticated.'],
+            ]);
+        }
+
+        // Tìm order theo order_code
+        $order = Order::with(['orderItems.book', 'address', 'payment'])
+            ->where('order_code', $orderCode)
+            ->firstOrFail();
+
+        if (
+            !$this->isAdminOrEmployee($user->id) &&
+            $order->email !== $user->email
+        ) {
+            return $this->errorResponse(403, 'Access denied', [
+                'auth' => ['Insufficient permissions.'],
+            ]);
+        }
+
+        return response()->json($this->orderResponse($order));
+    } catch (ModelNotFoundException $e) {
+        return $this->errorResponse(404, 'Order not found', [
+            'order' => ['Order not found.'],
+        ]);
+    } catch (QueryException $e) {
+        return $this->errorResponse(500, 'Database error', [
+            'database' => [$e->getMessage()],
+        ]);
+    } catch (Exception $e) {
+        return $this->errorResponse(500, 'Server error', [
+            'server' => [$e->getMessage()],
+        ]);
+    }
+}
+
+
     private function isAdminOrEmployee(int $userId): bool
     {
         $roles = DB::table('roles')
@@ -202,37 +243,43 @@ class OrderController extends Controller
     }
 
     private function orderResponse(Order $order): array
-    {
-        $items = [];
-        foreach ($order->orderItems as $oi) {
-            $items[] = [
-                'orderItemId'       => $oi->id,
-                'bookId'            => $oi->book_id,
-                'title'             => optional($oi->book)->title,
-                'quantity'          => $oi->quantity,
-                'discount'          => $oi->discount,
-                'orderedBookPrice'  => $oi->ordered_book_price,
-                'imageUrl' => optional($oi->book)->image_url,
-            ];
-        }
-        return [
-            'orderId'     => $order->id,
-            'email'       => $order->email,
-            'orderDate'   => $order->order_date,
-            'totalAmount' => $order->total_amount,
-            'orderStatus' => $order->order_status,
-            'addressId'   => $order->address_id,
-            'payment'     => $order->payment ? [
-                'paymentId'        => $order->payment->id,
-                'paymentMethod'    => $order->payment->payment_method,
-                'pgPaymentId'      => $order->payment->pg_payment_id,
-                'pgStatus'         => $order->payment->pg_status,
-                'pgResponseMessage'=> $order->payment->pg_response_message,
-                'pgName'           => $order->payment->pg_name,
-            ] : null,
-            'orderItems'  => $items,
+{
+    $items = [];
+    foreach ($order->orderItems as $oi) {
+        $items[] = [
+            'orderItemId'       => $oi->id,
+            'bookId'            => $oi->book_id,
+            'title'             => optional($oi->book)->title,
+            'quantity'          => $oi->quantity,
+            'discount'          => $oi->discount,
+            'orderedBookPrice'  => $oi->ordered_book_price,
+            'imageUrl'          => optional($oi->book)->image_url,
         ];
     }
+
+    return [
+        'orderId'        => $order->id,
+        'orderCode'      => $order->order_code,              // <- thêm
+        'email'          => $order->email,
+        'orderDate'      => $order->order_date,
+        'createdAt'      => optional($order->created_at)?->toIso8601String(),
+        'paidAt'         => optional($order->paid_at)?->toIso8601String(),
+        'totalAmount'    => $order->total_amount,
+        'orderStatus'    => $order->order_status,
+        'paymentStatus'  => $order->payment_status,          // <- thêm
+        'addressId'      => $order->address_id,
+        'payment'        => $order->payment ? [
+            'paymentId'         => $order->payment->id,
+            'paymentMethod'     => $order->payment->payment_method,
+            'pgPaymentId'       => $order->payment->pg_payment_id,
+            'pgStatus'          => $order->payment->pg_status,
+            'pgResponseMessage' => $order->payment->pg_response_message,
+            'pgName'            => $order->payment->pg_name,
+        ] : null,
+        'orderItems'     => $items,
+    ];
+}
+
 
     private function errorResponse(int $status, string $message, array $errors = [])
     {

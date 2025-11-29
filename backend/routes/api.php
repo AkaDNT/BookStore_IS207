@@ -7,6 +7,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Payment\VnpayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +69,8 @@ use Illuminate\Support\Facades\Route;
         ->whereNumber('orderId')
         ->name('order.update-status');
 
+    Route::get('/orders/by-code/{orderCode}', [OrderController::class, 'getOrderByCode']);
+
     Route::prefix('manage')->group(function () {
         Route::get('/get-all-users', [AdminController::class, 'getAllUsers'])
             ->name('manage.users.all');
@@ -98,9 +101,15 @@ use Illuminate\Support\Facades\Route;
         Route::get('/user/me', [UserController::class, 'me'])
         ->name('user.me');
 
-    Route::get('/user/my-orders', [UserController::class, 'myOrders'])
+        Route::get('/user/my-orders', [UserController::class, 'myOrders'])
         ->name('user.my-orders');
 
-    Route::patch('/user/me', [UserController::class, 'updateMe'])
+        Route::patch('/user/me', [UserController::class, 'updateMe'])
         ->name('user.update-me');
+
+        //PAYMENT
+
+        Route::middleware('auth:api')->post('/payments/vnpay/create', [VnpayController::class, 'create']);
 });
+        Route::get('/payments/vnpay/return', [VnpayController::class, 'return']);
+        Route::get('/payments/vnpay/ipn', [VnpayController::class, 'ipn']); 

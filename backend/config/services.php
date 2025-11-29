@@ -34,5 +34,13 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    
+    'fx' => [
+    'url'  => env('FX_API_URL', 'https://api.exchangerate.host/convert'),
+    'from' => env('FX_API_FROM', 'USD'),
+    'to'   => env('FX_API_TO', 'VND'),
+    'key'  => env('FX_API_KEY'),
+],
+
 
 ];

@@ -23,3 +23,5 @@ class DatabaseSeeder extends Seeder
         $this->call(BookSeeder::class);
     }
 }
+
+// call seeder: php artisan db:seed --class=BookSeeder
