@@ -1,10 +1,15 @@
-"use server";
-
 import { getOrderById } from "@/app/(user)/actions/adminApi";
 import OrderDetailClient from "./OrderDetailClient";
-export default async function Page({ params }: { params: { id: string } }) {
-  const id = Number(params.id);
-  const res = await getOrderById(id);
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const orderId = Number(id);
+
+  const res = await getOrderById(orderId);
 
   if ("error" in (res as any)) {
     return (

@@ -1,14 +1,18 @@
-"use server";
-
 import UserForm from "../../UserForm";
 import { getAllUsers } from "@/app/(user)/actions/adminApi";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const userId = Number(id);
+
   const res = await getAllUsers();
 
   const users = "error" in (res as any) ? [] : (res as any);
-  const user = users.find((u: any) => Number(u.id) === id);
+  const user = users.find((u: any) => Number(u.id) === userId);
 
   return (
     <section className="w-full max-w-7xl mx-auto space-y-4">
