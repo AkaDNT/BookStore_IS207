@@ -35,14 +35,31 @@ export default function BookClientPage({
   };
 
   return (
-    <div>
-      <div className="mb-4">
-        <SearchBar onSearch={handleSearch} placeholder="Search books..." />
+    <div className="space-y-4">
+      {/* Search row */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+        <div className="flex-1 min-w-0">
+          <SearchBar onSearch={handleSearch} placeholder="Search books..." />
+        </div>
+
+        {/* Optional status */}
+        <div className="text-sm text-gray-600">
+          {loading ? "Loading..." : ""}
+        </div>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      <BookTable books={books} />
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      {/* Table wrapper for responsiveness */}
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-x-auto">
+        <div className="min-w-[900px]">
+          <BookTable books={books} />
+        </div>
+      </div>
     </div>
   );
 }
