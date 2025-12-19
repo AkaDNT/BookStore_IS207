@@ -102,7 +102,7 @@ export default function BookTable({ books }: Props) {
             <div className="flex items-center gap-3">
               <Link
                 href={`/admin/manage-books/update/${b.id}`}
-                className="text-purple-600 hover:text-purple-800"
+                className="text-purple-600 hover:text-purple-800 cursor-pointer"
                 title="Edit"
               >
                 <Pencil className="w-4 h-4" />
@@ -110,10 +110,10 @@ export default function BookTable({ books }: Props) {
 
               <button
                 onClick={() => handleDelete(b.id)}
-                className="text-rose-600 hover:text-rose-800"
+                className="text-rose-600 hover:text-rose-800 cursor-pointer"
                 title="Delete"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-4 h-4 cursor-pointer" />
               </button>
             </div>
           </td>

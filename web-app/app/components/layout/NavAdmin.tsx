@@ -74,6 +74,7 @@ export default function NavAdmin({ open, onClose }: Props) {
         <nav className="flex flex-col space-y-1 mb-5">
           {navStatistic.map((item) => (
             <Link
+              prefetch={false}
               key={item.href}
               href={item.href}
               onClick={onClose}
