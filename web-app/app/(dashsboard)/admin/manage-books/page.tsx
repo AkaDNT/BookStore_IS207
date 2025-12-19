@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default async function BooksPage() {
   const res = await getAllBooks();
-  const books = res.data;
+  const books = "error" in res ? [] : res.data;
 
   return (
     <section className="w-full max-w-7xl mx-auto">

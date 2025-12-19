@@ -5,15 +5,12 @@ import { Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Book } from "@/app/(user)/models/Book";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { deleteBook } from "@/app/(user)/actions/bookAction";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-type Props = { books: Book[] };
-
+type Props = { books: Book[]; onDeleted?: (id: number) => void };
 const PAGE_SIZE = 10;
 
-export default function BookTable({ books }: Props) {
-  const router = useRouter();
+export default function BookTable({ books, onDeleted }: Props) {
   const [page, setPage] = useState(1);
 
   // Reset page when data changes (e.g. after search)
@@ -41,15 +38,26 @@ export default function BookTable({ books }: Props) {
       if (!confirm) return;
 
       try {
-        await deleteBook(id);
+        const res = await deleteBook(id);
+
+        if (res && typeof res === "object" && "error" in (res as any)) {
+          throw (res as any).error;
+        }
+
         toast.success("Delete book succeeded");
-        router.refresh();
-      } catch (error) {
-        console.error("Failed to delete book:", error);
-        toast.error("Failed to delete book. Please try again.");
+
+        // ✅ update UI ngay
+        onDeleted?.(id);
+
+        // (không bắt buộc) nếu bạn vẫn muốn refresh server data:
+        // router.refresh();
+      } catch (error: any) {
+        toast.error(
+          error?.message ?? "Failed to delete book. Please try again."
+        );
       }
     },
-    [router]
+    [onDeleted]
   );
 
   const canPrev = page > 1;

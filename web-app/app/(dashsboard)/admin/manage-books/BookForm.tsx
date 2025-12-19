@@ -6,11 +6,10 @@ import { Button, Spinner } from "flowbite-react";
 import toast from "react-hot-toast";
 import Input from "@/app/components/ui/Input";
 import { usePathname, useRouter } from "next/navigation";
-import { Book } from "@/app/(user)/models/Book";
-import { addBook, updateBook } from "@/app/(user)/actions/bookAction";
+import { addBook, AdminBook, updateBook } from "@/app/(user)/actions/adminApi";
 
 type Props = {
-  book?: Book & { id?: number };
+  book?: AdminBook;
 };
 
 export default function BookForm({ book }: Props) {
@@ -43,6 +42,7 @@ export default function BookForm({ book }: Props) {
         dimension,
         quantity,
         discount,
+        imageUrl,
       } = book;
 
       reset({
@@ -59,6 +59,7 @@ export default function BookForm({ book }: Props) {
         dimension,
         quantity,
         discount,
+        imageUrl,
       });
     }
 
@@ -68,14 +69,16 @@ export default function BookForm({ book }: Props) {
   async function onSubmit(data: FieldValues) {
     try {
       let res;
+
       if (pathName === "/admin/manage-books/new") {
-        res = await addBook(data);
+        res = await addBook(data as any);
       } else {
-        if (book && book.id) {
-          res = await updateBook(data, book.id);
-        }
+        const id = book?.id ?? book?.bookId;
+        if (!id) throw { status: "400", message: "Missing book id" };
+        res = await updateBook(data as any, id);
       }
-      if (res?.error) throw res.error;
+
+      if ((res as any)?.error) throw (res as any).error;
 
       router.push(`/admin/manage-books`);
     } catch (error: any) {
@@ -88,7 +91,6 @@ export default function BookForm({ book }: Props) {
       <div className="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur shadow-sm p-4 sm:p-6 lg:p-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-            {/* Column 1 */}
             <div className="flex flex-col gap-4">
               <Input
                 name="title"
@@ -140,7 +142,6 @@ export default function BookForm({ book }: Props) {
               </div>
             </div>
 
-            {/* Column 2 */}
             <div className="flex flex-col gap-4">
               <Input
                 name="description"
@@ -182,10 +183,15 @@ export default function BookForm({ book }: Props) {
                 control={control}
                 rules={{ required: "Discount is required", min: 0 }}
               />
+              <Input
+                name="imageUrl"
+                label="Image URL"
+                control={control}
+                rules={{}}
+              />
             </div>
           </div>
 
-          {/* Action buttons: stack on mobile */}
           <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-2">
             <Button
               color="alternative"
