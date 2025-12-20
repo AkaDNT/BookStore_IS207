@@ -26,6 +26,9 @@ Route::post('/auth/signup', [AuthController::class, 'signup']);
 Route::post('/auth/signin', [AuthController::class, 'login']);
 Route::get('/auth/me', [AuthController::class, 'me']);
 Route::post('/auth/logout', [AuthController::class, 'logout']);
+Route::post('/auth/change-password', [AuthController::class, 'changePassword'])
+    ->middleware('auth:api');
+
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/addresses', [AddressController::class, 'store']);
